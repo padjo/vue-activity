@@ -10,7 +10,7 @@
       <div class="media-content">
         <div class="content">
           <p>
-            <a href="#">Filip Jerga</a> updated {{activity.updatedAt}} minutes ago &nbsp;
+            <a href="#">Pat Collins</a> updated {{activity.updatedAt}} minutes ago &nbsp;
           </p>
         </div>
       </div>
@@ -22,14 +22,14 @@
 </template>
 
 <script>
-  export default {
-    props: {
-        activity: {
-         type: Object,
-         required: true
-        }
+export default {
+  props: {
+    activity: {
+      type: Object,
+      required: true
     }
   }
+}
 </script>
 
 <style scoped>
