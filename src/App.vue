@@ -1,5 +1,5 @@
 <template>
-  <div id="activityApp">
+  <div v-if="isDataLoaded" id="activityApp">
     <nav class="navbar is-white topNav">
       <div class="container">
         <div class="navbar-brand">
@@ -7,43 +7,34 @@
         </div>
       </div>
     </nav>
-    <nav class="navbar is-white">
-      <div class="container">
-        <div class="navbar-menu">
-          <div class="navbar-start">
-            <a class="navbar-item is-active" href="#">Newest</a>
-            <a class="navbar-item" href="#">In Progress</a>
-            <a class="navbar-item" href="#">Finished</a>
-          </div>
-        </div>
-      </div>
-    </nav>
+    <TheNavbar />
     <section class="container">
       <div class="columns">
         <div class="column is-3">
-          <!-- activity form -->
-
-          <ActivityCreate @activityCreated='addActivity'
-          :categories='categories'/>
-      <!-- end create form -->
+          <ActivityCreate :categories="categories"
+                          @activityCreated="addActivity" />
         </div>
         <div class="column is-9">
-          <div class="box content" 
-               :class="{fetching:isFetching, 'has-error':error}">
+          <div class="box content"
+               :class="{fetching: isFetching, 'has-error': error}">
             <div v-if="error">
               {{ error }}
             </div>
             <div v-else>
               <div v-if="isFetching">
-                 .....Loading
+                Loading ...
               </div>
-              <ActivityItem v-for="activity in activities"
-                           :activity="activity"
-                           :key="activity.id"></ActivityItem>
+              <ActivityItem
+                v-for="activity in activities"
+                :key="activity.id"
+                :activity="activity"
+                :categories="categories"
+                @activityDeleted="handleActivityDelete"
+              />
             </div>
             <div v-if="!isFetching">
-              <div class='activity-length'>currently {{ activityLength }} activities</div>
-              <div class='activity-motivation'>{{ activityMotivation}}</div>
+              <div class="activity-length">Currenly {{ activityLength }} activities</div>
+              <div class="activity-motivation">{{ activityMotivation }}</div>
             </div>
           </div>
         </div>
@@ -54,31 +45,47 @@
 
 <script>
 import Vue from 'vue'
-import ActivityItem from './components/ActivityItem'
-import ActivityCreate from './components/ActivityCreate'
-import { fetchActivities, fetchUser, fetchCatogeries } from './api/'
+
+import ActivityItem from '@/components/ActivityItem'
+import ActivityCreate from '@/components/ActivityCreate'
+import TheNavbar from '@/components/TheNavbar'
+
+import { fetchActivities, fetchUser, fetchCategories } from '@/api'
 export default {
-  name: 'app',
-  components: { ActivityItem, ActivityCreate },
+  name: 'App',
+  components: {ActivityItem, ActivityCreate, TheNavbar},
   data () {
     return {
-      watchedAppName: 'Activity Planner by Pat Collins',
-      creator: 'Pat Collins',
+      creator: 'Filip Jerga',
       appName: 'Activity Planner',
-      newActivity: {
-        title: '',
-        notes: '',
-        category: ''
-      },
       isFetching: false,
       error: null,
       user: {},
-      activities: {},
-      categories: {}
+      activities: null,
+      categories: null
+    }
+  },
+  computed: {
+    fullAppName () {
+      return this.appName + ' by ' + this.creator
+    },
+    activityLength () {
+      return Object.keys(this.activities).length
+    },
+    activityMotivation () {
+      if (this.activityLength && this.activityLength < 5) {
+        return 'Nice to see some activities (:'
+      } else if (this.activityLength >= 5) {
+        return 'So many activities! Good Job!'
+      } else {
+        return 'No activities, so sad :('
+      }
+    },
+    isDataLoaded () {
+      return this.activities && this.categories
     }
   },
   created () {
-    //this.activities = fetchActivities()
     this.isFetching = true
     fetchActivities()
       .then(activities => {
@@ -88,44 +95,21 @@ export default {
       .catch(err => {
         this.error = err
         this.isFetching = false
-        console.log(err)
-        
       })
 
     this.user = fetchUser()
-    this.categories = fetchCatogeries()
-    console.log(this.user, this.categories)
-  },
-  computed: {
-
-    fullAppName () {
-      return this.appName + ' by ' + this.creator
-    },
-    activityLength () {
-      return Object.keys(this.activities).length
-    },
-    activityMotivation () {
-      if (this.activityLength && this.activityLength < 5) {
-        return 'nice to see some goallls'
-      } else if (this.activityLength > 5) {
-        return 'nice to see so many activities'
-      } else {
-        return 'No activities !'
-      }
-    }
-  },
-  watch: {
-    creator (val) {
-      this.watchedAppName = this.appName + ' by ' + val
-    },
-    appName (val) {
-      this.watchedAppName = val + ' by ' + this.creator
-    }
+    fetchCategories()
+      .then(categories => {
+        this.categories = categories
+    })
   },
   methods: {
     addActivity (newActivity) {
-      //this.activities[newActivity.id] = newActivity
+      debugger
       Vue.set(this.activities, newActivity.id, newActivity)
+    },
+    handleActivityDelete (activity) {
+      console.log(activity)
     }
   }
 }
@@ -152,18 +136,16 @@ footer {
 }
 
 .has-error {
-  border: 2px solid red
+  border: 2px solid red;
 }
 
 .activity-motivation {
-  float : right;
+ float: right;
 }
 
 .activity-length {
   display: inline-block;
 }
-
-.acti
 
 .example-wrapper {
   margin-left: 30px;
