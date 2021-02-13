@@ -50,7 +50,7 @@ import ActivityItem from '@/components/ActivityItem'
 import ActivityCreate from '@/components/ActivityCreate'
 import TheNavbar from '@/components/TheNavbar'
 
-import { fetchActivities, fetchUser, fetchCategories } from '@/api'
+import { fetchActivities, fetchUser, fetchCategories, deleteActivityAPI } from '@/api'
 export default {
   name: 'App',
   components: {ActivityItem, ActivityCreate, TheNavbar},
@@ -109,7 +109,11 @@ export default {
       Vue.set(this.activities, newActivity.id, newActivity)
     },
     handleActivityDelete (activity) {
-      console.log(activity)
+      debugger
+      deleteActivityAPI(activity)
+      .then(deleteActivity => {
+        Vue.delete(this.activities,deleteActivity.id)
+      })
     }
   }
 }
