@@ -2,12 +2,12 @@
   <article class="post">
     <div class="activity-title">
       <!-- TODO: Add v-model -->
-      <input v-model="activity.title" type="text" class="input">
-      <i class="fas fa-cog activity-settings" @click="isMenuDisplayed = !isMenuDisplayed" />
+       <i class="fas fa-cog activity-settings" @click="isMenuDisplayed = !isMenuDisplayed" />
+      <input v-model="modifiedActivity.title" type="text" class="input">
     </div>
     <div class="activity-category">
       <!-- TODO: add v-model and iterate categories in option  -->
-      <select v-model="activity.category" class="select">
+      <select v-model="modifiedActivity.category" class="select">
         <option disabled value="">Please select one</option>
         <option v-for="category in categories"
                 :key="category.id"
@@ -16,7 +16,7 @@
     </div>
     <div class="control activity-notes">
       <!-- TODO: Add v-model here -->
-      <textarea v-model="activity.notes"
+      <textarea v-model="modifiedActivity.notes"
                 class="textarea"
                 placeholder="Write some notes here" />
     </div>
@@ -29,18 +29,18 @@
       <div class="media-content">
         <div class="content">
           <p>
-            <a href="#">Filip Jerga</a> updated {{ activity.updatedAt | prettyTime }} &nbsp;
+            <a href="#">Filip Jerga</a> updated {{ modifiedActivity.updatedAt | prettyTime }} &nbsp;
           </p>
         </div>
       </div>
       <div class="media-right">
         <!-- TODO: Add v-model here -->
         <input id="progress"
-               v-model="activity.progress"
+               v-model="modifiedActivity.progress"
                type="range"
                name="progress"
                min="0" max="100" value="90" step="10">
-        <label for="progress">{{ activity.progress }} %</label>
+        <label for="progress">{{ modifiedActivity.progress }} %</label>
       </div>
     </div>
     <div v-if="isMenuDisplayed" class="activity-controll">
@@ -54,6 +54,7 @@
 
 <script>
   import textUtility from '@/mixins/textUtility'
+  import store from '@/store'
   export default {
     mixins: [textUtility],
     props: {
@@ -68,14 +69,19 @@
     },
     data () {
       return {
-        isMenuDisplayed: false
+        isMenuDisplayed: true,
+        modifiedActivity: {...this.activity}
       }
     },
     methods: {
       updateActivity () {
-        console.log(this.activity)
+        store.updateActivity(this.modifiedActivity)
+        .then(() => {
+          this.$emit('toggleUpdate',false)
+          
+        })
       }
-    }
+    },
   }
 </script>
 
@@ -95,6 +101,7 @@
   .activity-settings {
     float: right;
     font-size: 22px;
+    margin-bottom : 10px;
 
     &:hover {
       cursor: pointer;

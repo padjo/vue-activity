@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isDataLoaded" id="activityApp">
+  <div  id="activityApp">
     <nav class="navbar is-white topNav">
       <div class="container">
         <div class="navbar-brand">
@@ -23,12 +23,15 @@
               <div v-if="isFetching">
                 Loading ...
               </div>
-              <ActivityItem
-                v-for="activity in activities"
-                :key="activity.id"
-                :activity="activity"
-                :categories="categories"
-              />
+              <div v-if="isDataLoaded">
+                <ActivityItem
+                  v-for="activity in activities"
+                  :key="activity.id"
+                  :activity="activity"
+                  :categories="categories"
+                />
+              </div>
+              
             </div>
             <div v-if="!isFetching">
               <div class="activity-length">Currenly {{ activityLength }} activities</div>

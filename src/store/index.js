@@ -50,6 +50,15 @@ const store = {
     })
   },
 
+  updateActivity(activity) {
+      activity.updatedAt = new Date()
+      return fakeApi.post('activities',activity)
+      .then((activity) => {
+        this.setItem('activities',activity.id,activity)
+        return activity
+      })
+  },
+
   deleteActivity (activity) {
     return fakeApi.delete('activities', activity) 
     .then(deletedAPIactivity => {
