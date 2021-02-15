@@ -11,8 +11,7 @@
     <section class="container">
       <div class="columns">
         <div class="column is-3">
-          <ActivityCreate :categories="categories"
-                          @activityCreated="addActivity" />
+          <ActivityCreate :categories="categories" />
         </div>
         <div class="column is-9">
           <div class="box content"
@@ -29,7 +28,6 @@
                 :key="activity.id"
                 :activity="activity"
                 :categories="categories"
-                @activityDeleted="handleActivityDelete"
               />
             </div>
             <div v-if="!isFetching">
@@ -46,23 +44,25 @@
 <script>
 import Vue from 'vue'
 
+import store from './store'
 import ActivityItem from '@/components/ActivityItem'
 import ActivityCreate from '@/components/ActivityCreate'
 import TheNavbar from '@/components/TheNavbar'
 
-import { fetchActivities, fetchUser, fetchCategories, deleteActivityAPI } from '@/api'
+//import { fetchActivities, fetchUser, fetchCategories, deleteActivityAPI } from '@/api'
 export default {
   name: 'App',
   components: {ActivityItem, ActivityCreate, TheNavbar},
   data () {
+    const { state:{ activities, categories }} = store
     return {
       creator: 'Filip Jerga',
       appName: 'Activity Planner',
       isFetching: false,
       error: null,
       user: {},
-      activities: null,
-      categories: null
+      activities,
+      categories
     }
   },
   computed: {
@@ -82,14 +82,14 @@ export default {
       }
     },
     isDataLoaded () {
-      return this.activities && this.categories
+      return (Object.keys(this.activities).length && Object.keys(this.categories).length)
+      //return this.activities && this.categories
     }
   },
   created () {
     this.isFetching = true
-    fetchActivities()
+    store.fetchActivities()
       .then(activities => {
-        this.activities = activities
         this.isFetching = false
       })
       .catch(err => {
@@ -97,24 +97,14 @@ export default {
         this.isFetching = false
       })
 
-    this.user = fetchUser()
-    fetchCategories()
+    this.user = store.fetchUser()
+    store.fetchCategories()
       .then(categories => {
-        this.categories = categories
     })
   },
   methods: {
-    addActivity (newActivity) {
-      debugger
-      Vue.set(this.activities, newActivity.id, newActivity)
-    },
-    handleActivityDelete (activity) {
-      debugger
-      deleteActivityAPI(activity)
-      .then(deleteActivity => {
-        Vue.delete(this.activities,deleteActivity.id)
-      })
-    }
+   
+    
   }
 }
 </script>
