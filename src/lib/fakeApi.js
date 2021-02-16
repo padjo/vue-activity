@@ -27,24 +27,48 @@ const data = {
 }
 
 class FakeApi {
+
+  fillDB () {
+    
+    console.log(this.get('activities', {force : 1}))
+    this.get('activities', {force : 1})
+    .then(activities => {
+      if (!Object.keys(activities).length) { // if localstorage has no activities
+        this.commitData(data)
+        return data
+      }
+    })
+    
+  }
+
+
+  commitData (data) {
+    localStorage.setItem('activity-data', JSON.stringify(data))
+
+  }
+
+  getData () {
+    const activityData = localStorage.getItem('activity-data')
+    return JSON.parse(activityData)
+
+  }
   canContinue () {
     const rndNumber = Math.floor(Math.random() * 10)
-
     if (rndNumber > 5) {
       return true
     }
-
     return false
   }
 
 
-  get (resource, {force = 0}) {
-    return new Promise((resolve, reject) => {
-      this.asyncCall(() => {
-        if (force || this.canContinue()) {
-          resolve({...data[resource]})
-        } else {
-          reject('Cannot fetch' + resource)
+ get (resource, {force = 1}) {
+     return new Promise((resolve, reject) => {
+       this.asyncCall(() => {
+         if (force || this.canContinue()) {
+           const data = this.getData();
+           resolve({...data[resource]})
+         } else {
+           reject('Cannot fetch' + resource)
         }
       })
     })
@@ -52,14 +76,18 @@ class FakeApi {
 
   post (resource, item) {
     return new Promise((resolve, reject) => {
+      const data = this.getData()
       data[resource][item.id] = item
+      this.commitData(data)
       resolve(item)
     })
   }
 
   delete (resource, item) {
     return new Promise((resolve, reject) =>{
+        const data = this.getData()
         delete data[resource][item.id]
+        this.commitData(data)
         resolve(item)
     })
   }

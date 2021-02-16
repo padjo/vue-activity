@@ -51,6 +51,7 @@ import store from './store'
 import ActivityItem from '@/components/ActivityItem'
 import ActivityCreate from '@/components/ActivityCreate'
 import TheNavbar from '@/components/TheNavbar'
+import fakeApi from '@/lib/fakeApi'
 
 //import { fetchActivities, fetchUser, fetchCategories, deleteActivityAPI } from '@/api'
 export default {
@@ -90,6 +91,8 @@ export default {
     }
   },
   created () {
+
+    fakeApi.fillDB()
     this.isFetching = true
     store.fetchActivities()
       .then(activities => {
