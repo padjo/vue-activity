@@ -7,7 +7,7 @@
         </div>
       </div>
     </nav>
-    <TheNavbar />
+    <TheNavbar @filterSelected="setFilter" />
     <section class="container">
       <div class="columns">
         <div class="column is-3">
@@ -25,7 +25,7 @@
               </div>
               <div v-if="isDataLoaded">
                 <ActivityItem
-                  v-for="activity in activities"
+                  v-for="activity in filteredActivities"
                   :key="activity.id"
                   :activity="activity"
                   :categories="categories"
@@ -66,10 +66,30 @@ export default {
       error: null,
       user: {},
       activities,
-      categories
+      categories,
+      filter:'all'
     }
   },
   computed: {
+    filteredActivities () {
+      let condition
+      if (this.filter == 'all') {
+        return this.activities
+      } else if (this.filter == 'in-progress') {
+            condition = progress => progress > 0 && progress < 100
+      } else if (this.filter == "finished") {
+          condition = progress => progress > 99
+          //  return filteredActivities = Object.values(this.activities)
+          //  .filter(activity => {
+          //    return  activity.progress > 99
+          //  })
+      } else if (this.filter == 'not-started') {
+         condition = progress => progress == 0
+      }
+
+      return  Object.values(this.activities)
+           .filter(activity => condition(activity.progress))
+    },
     fullAppName () {
       return this.appName + ' by ' + this.creator
     },
@@ -109,7 +129,11 @@ export default {
     })
   },
   methods: {
-   
+   setFilter (filterOption) {
+     this.filter = filterOption
+    
+   }
+  
     
   }
 }

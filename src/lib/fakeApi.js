@@ -30,7 +30,6 @@ class FakeApi {
 
   fillDB () {
     
-    console.log(this.get('activities', {force : 1}))
     this.get('activities', {force : 1})
     .then(activities => {
       if (!Object.keys(activities).length) { // if localstorage has no activities
